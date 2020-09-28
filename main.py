@@ -111,4 +111,5 @@ def test_webhook():
 
 ### Run code
 logger.info("Starting bot")
-app.run()
+if __name__ == '__main__':
+    app.run()
