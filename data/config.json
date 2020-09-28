@@ -1,0 +1,17 @@
+{
+  "sheep": "best",
+  "heroku_url": "https://group-me-fancy-sheep.herokuapp.com/",
+  "groups": {
+    "group1": {
+      "bot_ID": "a804e3c8a4515011dfdd81a080",
+      "group_ID": "62928192"
+    }
+  },
+  "messages": [
+    {
+      "call": "Hello",
+      "post_to": ["group1"],
+      "response": "World"
+    }
+  ]
+}
