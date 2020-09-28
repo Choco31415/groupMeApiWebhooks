@@ -37,11 +37,16 @@ def generic_webhook():
     call = request.args.get("call")
     logger.info("Received call: {}".format(call))
 
-    for message in messages:
-        if message["call"].strip().lower() == \
-                call.strip().lower():
-            process_message(message)
-            return Response(status=200)
+    found = False
+    if not call is None:
+        for message in messages:
+            if message["call"].strip().lower() == \
+                    call.strip().lower():
+                process_message(message)
+                found = True
+
+    if found:
+        return Response(status=200)
     else:
         return Response(status=404)
 
