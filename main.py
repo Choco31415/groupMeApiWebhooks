@@ -70,11 +70,11 @@ def post_groupme_msg(bot_id, guid, msg, notify_all=True):
     if notify_all:
         user_ids = get_groupme_ids(bot_id, guid)
 
-        attachments = {
+        attachments = [{
                 "loci": [],
                 "type": "mentions",
                 "user_ids": user_ids
-        }
+        }]
     else:
         attachments = []
 
@@ -97,8 +97,9 @@ def get_groupme_ids(bot_id, guid):
         "guid": guid
     }
 
-    url = groupme_base_api + "/groups"
-    r = requests.post(url=url, data=data)
+    url = groupme_base_api + "/groups/" + guid
+    print(url)
+    r = requests.get(url=url, data = data)
     print(r.text)
 
     return json.loads(r.text)
