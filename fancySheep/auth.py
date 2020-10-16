@@ -19,6 +19,7 @@ with open("config.json", "r") as f:
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
     global client
+    print("a")
     if request.method == 'POST':
         token = request.form['token']
         client = Client.from_token(token)
