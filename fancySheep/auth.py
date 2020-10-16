@@ -6,25 +6,25 @@ from flask import (
 from werkzeug.security import check_password_hash
 from fancySheep.db import get_db
 from groupy.client import Client
+from groupy.api.bots import Bots
 import json
 
 # Global vars
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-client = None
 
 with open("config.json", "r") as f:
     config = json.loads(f.read())
 
 # Define functions
-@bp.route('/login', methods=('GET', 'POST'))
+@bp.route('/login')
 def login():
-    global client
-    print("a")
-    if request.method == 'POST':
-        token = request.form['token']
+    token = request.args.get('access_token')
+    if not token is None:
+        # Get client
         client = Client.from_token(token)
         error = None
 
+        # Error check
         try:
             me = client.user.get_me()
         except:
@@ -33,38 +33,44 @@ def login():
         if error is not None:
             flash(error)
         else:
-            username = "placeholder"
-            user_id = "placeholder"
-            print(me)
+            # Setup the session
+            user_id = me["id"]
+            username = me["name"]
 
             session.clear()
             session['user_id'] = user_id
+            session['username'] = username
+            session['token'] = token
 
-            db = get_db()
-            if db.execute(
-                'SELECT id FROM user WHERE id = ?', (user_id,)
-            ).fetchone() is not None:
-                #Add user entry
-                db.execute(
-                    'INSERT INTO user (id, username)'
-                    ' VALUES (?, ?)',
-                    (user_id, username)
-                )
-                db.commit()
+            # Check for bot instances
+            # Only useful in event of catastrophic DB failure
+            bot_client = Bots(client.session)
+            bots = bot_client.list()
+            for bot in bots:
+                if bot["name"] == config["name"]:
+                    db = get_db()
+                    if db.execute(
+                            'SELECT * FROM bot WHERE group_id = ?', (bot["group_id"],)
+                    ).fetchone() is None:
+                        # This bot instance is unrecorded
+                        bot_client.destroy(bot["bot_id"])
+
             return redirect(url_for('index'))
 
-    return render_template('auth/login.html', client_id=config["client_id"])
+    return render_template('auth/login.html')
 
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
+    username = session.get('user_id')
+    token = session.get('token')
 
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+        g.user = {"user_id": int(user_id),
+                  "username": username,
+                  "client": Client.from_token(token)}
 
 def login_required(view):
     @functools.wraps(view)
@@ -75,3 +81,8 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
+@bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))

@@ -1,11 +1,13 @@
+# Handle imports
 import os
 
 from flask import Flask
 from . import db
 from . import auth
-from . import blog
+from . import main
 from . import website
 
+# Define functions
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -38,7 +40,10 @@ def create_app(test_config=None):
     # Auth
     app.register_blueprint(auth.bp)
 
-    # Blog
+    # Main
+    app.register_blueprint(main.bp)
+
+    # Website
     app.register_blueprint(website.bp)
     app.add_url_rule('/', endpoint='index')
 

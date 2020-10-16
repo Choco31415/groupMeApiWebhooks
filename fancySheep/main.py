@@ -4,11 +4,14 @@ Bot code. Easy peasy lemon squeezy
 
 ### Handle imports
 import json
-import os
 
 import requests
-from flask import Flask, request, Response
+from flask import Blueprint, g, request, Response
 from fancySheep import *
+from fancySheep.db import get_db
+from groupy.api.groups import Groups
+from groupy.api.bots import Bots
+from groupy.api.attachments import Mentions
 
 from fancySheep.logger import *
 
@@ -16,49 +19,45 @@ from fancySheep.logger import *
 log_path = os.path.join("logs", "status.log")
 logger = setup_logger(log_path)
 
-### Load config
-groupme_base_api = "https://api.groupme.com/v3"
-groupme_api_bot_post = "/bots/post"
-groupme_api_chat = "/chat"
-
-app = create_app()
+bp = Blueprint('main', __name__, url_prefix='/main')
 
 ### Define methods
-@app.route('/fancy_sheep', methods=["GET"])
+@bp.route('/fancy_sheep', methods=["GET"])
 def generic_webhook():
     """
     Expects an HTTP GET with a message call.
     """
-    call = request.args.get("call")
-    logger.info("Received call: {}".format(call))
+    tag = request.args.get("tag")
+    logger.info("Received tag: {}".format(tag))
 
-    found = False
-    if not call is None:
-        """for message in messages:
-            if message["call"].strip().lower() == \
-                    call.strip().lower():
-                process_message(message)
-                found = True"""
+    webhook = None
+    if not tag is None:
+        db = get_db()
+        webhook = db.execute(
+            'SELECT * FROM webhook WHERE tag = ?', (tag,)
+        ).fetchone()
 
-    if found:
+    if webhook:
+        process_webhook(webhook)
         return Response(status=200)
     else:
         return Response(status=404)
 
-def process_message(message):
+def process_webhook(webhook):
     """
     Post a message to various groups
 
-    :param message: Message JSON obj
+    :param webhook: Webhook SQL row
     """
-    msg = message["response"]
-    for group_name in message["post_to"]:
-        """group = groups[group_name]"""
-        guid = group["group_ID"]
-        bot_id = group["bot_ID"]
-        post_groupme_msg(bot_id, guid, msg)
+    db = get_db()
+    subscriptions = db.execute(
+            'SELECT * FROM subscription JOIN bot WHERE tag = ?', (webhook["tag"],)
+        ).fetchall()
 
-def post_groupme_msg(bot_id, guid, msg, notify_all=True):
+    for sub in subscriptions:
+        post_groupme_msg(sub["bot_id"], sub["group_id"], webhook["message"])
+
+def post_groupme_msg(bot_id, group_id, msg, notify_all=True):
     """
     Post a message to a groupme group.
 
@@ -68,43 +67,14 @@ def post_groupme_msg(bot_id, guid, msg, notify_all=True):
     :param notify_all: Notify everyone or no?
     """
     if notify_all:
-        user_ids = get_groupme_ids(bot_id, guid)
-
-        attachments = [{
-                "loci": [],
-                "type": "mentions",
-                "user_ids": user_ids
-        }]
+        user_ids = Groups(None).get(group_id)
+        attachements = [Mentions(user_ids=user_ids)]
     else:
-        attachments = []
+        attachements = []
 
-    data = {
-        "bot_id": bot_id,
-        "text": msg,
-        "attachments": attachments
-    }
+    Bots(None).post(bot_id, msg, attachments=attachements)
 
-    url = groupme_base_api + groupme_api_bot_post
-    requests.post(url = url, data = data)
-
-def get_groupme_ids(bot_id, guid):
-    """
-    Get the user id's of all members in a group.
-    :return:
-    """
-    data = {
-        "bot_id": bot_id,
-        "guid": guid
-    }
-
-    url = groupme_base_api + "/groups/" + guid
-    print(url)
-    r = requests.get(url=url, data = data)
-    print(r.text)
-
-    return json.loads(r.text)
-
-@app.route('/fancy_sheep_test', methods=["GET"])
+#@app.route('/fancy_sheep_test', methods=["GET"])
 def test_webhook():
     """For debug only."""
     return generic_webhook()

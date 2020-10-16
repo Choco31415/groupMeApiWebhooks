@@ -4,11 +4,6 @@ DROP TABLE IF EXISTS webhook;
 DROP TABLE IF EXISTS subscription;
 DROP TABLE IF EXiSTS bot;
 
-CREATE TABLE user (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL
-);
-
 CREATE TABLE webhook (
   tag TEXT PRIMARY KEY,
   message TEXT NOT NULL,
@@ -18,12 +13,12 @@ CREATE TABLE webhook (
 
 CREATE TABLE subscription (
   tag TEXT NOT NULL,
-  bot_id INTEGER NOT NULL,
+  group_id INTEGER NOT NULL,
   FOREIGN KEY (tag) REFERENCES webhook (tag),
-  FOREIGN KEY (bot_id) REFERENCES bot (bot_id)
+  FOREIGN KEY (group_id) REFERENCES bot (group_id)
 );
 
 CREATE TABLE bot (
-  bot_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  group_id INTEGER UNIQUE NOT NULL
+  bot_id INTEGER UNIQUE NOT NULL,
+  group_id INTEGER PRIMARY KEY AUTOINCREMENT
 );

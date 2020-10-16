@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit "{{ webhook['tag'] }}"{% endblock %}</h1>
+  <h1>{% block title %}Webhook{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+  <h2>Edit</h2>
   <form method="post">
     <label for="new_tag">Tag</label>
     <input name="new_tag" id="new_tag"
@@ -14,15 +15,29 @@
     <input type="submit" value="Save">
   </form>
   <hr>
-  {% for group in groups %}
-    <div>
+  <h2>Current Groups</h2>
+  {% for group in current_groups %}
+    <form method="post" action="{{ url_for('website.remove_subscription', tag=webhook['tag'] ) }}">
       <div>
-        group["name"]
-        <a class="action" href="{{ url_for('website.remove_subscription', tag=webhook['tag']) }}">Edit</a>
+        {{group['name']}}
+        <button name="group_id" type="submit" value="{{group['group_id']}}">Remove</button>
       </div>
-    </div>
+    </form>
   {% endfor %}
   <hr>
+  <h2>Add A Group</h2>
+  <form method="post" action="{{ url_for('website.add_subscription', tag=webhook['tag']) }}">
+    <p>Note: Only recent groups are listed.</p>
+    <label for="new_group">New Group</label>
+    <select id="new_group" name="new_group">
+      {% for group in available_groups %}
+        <option value="{{group['id']}}" SELECTED>{{group['name']}}</option>"
+      {% endfor %}
+    </select>
+    <input type="submit" value="Add">
+  </form>
+  <hr>
+  <h2>Delete</h2>
   <form action="{{ url_for('website.delete', tag=webhook['tag']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
