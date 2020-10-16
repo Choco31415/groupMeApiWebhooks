@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Edit "{{ webhook['tag'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="new_tag">Tag</label>
+    <input name="new_tag" id="new_tag"
+      value="{{ request.form['tag'] or webhook['tag'] }}" required>
+    <label for="message">Message</label>
+    <textarea name="message" id="message">{{ request.form['message'] or webhook['message'] }}</textarea>
+    <input type="submit" value="Save">
+  </form>
+  <hr>
+  {% for group in groups %}
+    <div>
+      <div>
+        group["name"]
+        <a class="action" href="{{ url_for('website.remove_subscription', tag=webhook['tag']) }}">Edit</a>
+      </div>
+    </div>
+  {% endfor %}
+  <hr>
+  <form action="{{ url_for('website.delete', tag=webhook['tag']) }}" method="post">
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+  </form>
+{% endblock %}

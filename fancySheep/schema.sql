@@ -1,0 +1,29 @@
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS post;
+DROP TABLE IF EXISTS webhook;
+DROP TABLE IF EXISTS subscription;
+DROP TABLE IF EXiSTS bot;
+
+CREATE TABLE user (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE webhook (
+  tag TEXT PRIMARY KEY,
+  message TEXT NOT NULL,
+  owner_id INTEGER NOT NULL,
+  FOREIGN KEY (owner_id) REFERENCES user (id)
+);
+
+CREATE TABLE subscription (
+  tag TEXT NOT NULL,
+  bot_id INTEGER NOT NULL,
+  FOREIGN KEY (tag) REFERENCES webhook (tag),
+  FOREIGN KEY (bot_id) REFERENCES bot (bot_id)
+);
+
+CREATE TABLE bot (
+  bot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  group_id INTEGER UNIQUE NOT NULL
+);

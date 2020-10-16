@@ -3,30 +3,25 @@ Bot code. Easy peasy lemon squeezy
 """
 
 ### Handle imports
-import os
 import json
+import os
+
 import requests
 from flask import Flask, request, Response
-from logger import *
+from fancySheep import *
+
+from fancySheep.logger import *
 
 ### Logging
 log_path = os.path.join("logs", "status.log")
 logger = setup_logger(log_path)
 
 ### Load config
-# Use os.path, it's cookie cutter stuff people >3>
-config_file = os.path.join("data", "config.json")
-with open(config_file, "r") as f:
-    config = json.loads(f.read())
-
-groups = config["groups"]
-messages = config["messages"]
-
 groupme_base_api = "https://api.groupme.com/v3"
 groupme_api_bot_post = "/bots/post"
 groupme_api_chat = "/chat"
 
-app = Flask(__name__)
+app = create_app()
 
 ### Define methods
 @app.route('/fancy_sheep', methods=["GET"])
@@ -39,11 +34,11 @@ def generic_webhook():
 
     found = False
     if not call is None:
-        for message in messages:
+        """for message in messages:
             if message["call"].strip().lower() == \
                     call.strip().lower():
                 process_message(message)
-                found = True
+                found = True"""
 
     if found:
         return Response(status=200)
@@ -58,7 +53,7 @@ def process_message(message):
     """
     msg = message["response"]
     for group_name in message["post_to"]:
-        group = groups[group_name]
+        """group = groups[group_name]"""
         guid = group["group_ID"]
         bot_id = group["bot_ID"]
         post_groupme_msg(bot_id, guid, msg)

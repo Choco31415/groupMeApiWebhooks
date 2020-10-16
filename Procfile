@@ -1,1 +1,1 @@
-web: gunicorn -w 4 main:app
+web: gunicorn -w 4 fancySheep.main:app

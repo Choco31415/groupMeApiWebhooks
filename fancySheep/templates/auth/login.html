@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Log In{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <p>Login is handled via the GroupMe API.</p>
+
+  <p>
+    <a href="https://oauth.groupme.com/oauth/authorize?client_id={{client_id}}">Click here to login via GroupMe.</a>
+  </p>
+{% endblock %}

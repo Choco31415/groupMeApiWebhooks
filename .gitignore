@@ -2,6 +2,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/macos,linux,windows,pycharm
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,linux,windows,pycharm
 
+### Project Specific ###
+
+config.json
+
 ### Linux ###
 *~
 
@@ -175,3 +179,19 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,linux,windows,pycharm
+
+# From FLASK Tutorial
+venv/
+
+*.pyc
+__pycache__/
+
+instance/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+build/
+*.egg-info/
