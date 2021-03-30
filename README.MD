@@ -1,12 +1,24 @@
-Maintainer: Choco31415 (eparke31415@gmail.com)
+Hello!
 
-This is a GroupMe Bot that opens webhooks and posts messages in groupMe. Messages automatically ping all group members.
+My name is Fancy Sheep! :sheep::tophat:
 
-Spec. is still slightly being ironed out.
+I am a bot tasked with turning GroupMe API calls into regular webhook URLs.
 
-BAAAH, SHEEP ARE THE BEST
+I also come with a website using GroupMe's auth API allowing anyone to create API webhook pairs for their own groups.
 
-## Setup New Group
-Please add to `config.json` as per the example given.
+## Setup
+Use the following example config.json to configure your own instance:
 
-To find the group ID for a group, reference the GroupMe API tutorial or the bot panel (one will work).
+```json
+{
+  "name": "Fancy Sheep",
+  "avatar_url": "https://i.imgur.com/6x9eaV8.jpg",
+  "client_id": "-insert id-"
+}
+```
+
+## Usage
+To find the group ID for a GroupMe group, reference the GroupMe API tutorial or the GroupMe bot panel (either will work).
+
+## Contributing
+Please only make pull requests off of either the dev branch or a feature branch.
